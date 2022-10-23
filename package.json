@@ -1,6 +1,6 @@
 {
-  "name": "pico-online-engine",
-  "version": "1.0.1",
+  "name": "pico-socket",
+  "version": "1.0.2",
   "description": "Server and Client library for adding Online Multiplayer to Pico-8",
   "main": "index.js",
   "files": [
@@ -12,14 +12,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/JRJurman/pico-online-engine.git"
+    "url": "git+https://github.com/JRJurman/pico-socket.git"
   },
   "author": "Jesse Jurman",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/JRJurman/pico-online-engine/issues"
+    "url": "https://github.com/JRJurman/pico-socket/issues"
   },
-  "homepage": "https://github.com/JRJurman/pico-online-engine#readme",
+  "homepage": "https://github.com/JRJurman/pico-socket#readme",
   "dependencies": {
     "express": "^4.18.2",
     "socket.io": "^4.5.3"
