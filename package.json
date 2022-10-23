@@ -1,6 +1,6 @@
 {
   "name": "pico-socket",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Server and Client library for adding Online Multiplayer to Pico-8",
   "main": "index.js",
   "files": [

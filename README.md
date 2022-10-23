@@ -5,6 +5,31 @@ Server and Client library for adding Online Multiplayer to Pico-8
 This Project borrows heavily (but simplifies) the logic in
 Ethan Jurman's Pico Tiny Tanks - https://github.com/ethanjurman/pico-tiny-tanks
 
+## How to use?
+
+For this, you'll need Node JS, and Pico-8.
+
+To start, make a new folder, and run the following in that new folder:
+
+```
+npm init --yes
+npm i pico-socket
+```
+
+Export your game for the web (e.g. `export game.html`) and put your new game
+files in the folder you just made (specifically your `.html` and `.js` export).
+
+Create a `server.js` and call the `createPicoSocketServer`
+(see the example in `sample/server.js` in this project). You'll need to pass in
+the following information when you call the `createPicoSocketServer` function:
+
+- `assetFilesPath` - where you game assets live (you can use `.` if they are in the same folder)
+- `htmlGameFilePath` - the name of your html export
+- `clientConfig` - an object with the following values:
+  - `roomIdIndex` - the GPIO address index which dictates which other clients you should connect to
+  - `playerIdIndex` - the GPIO address index which dictates which player this client is
+  - `playerDataIndicies` - a list of indicies per-player, which dictates which GPIO addresses that player is responsible for.
+
 ## What is it?
 
 pico-socket is a library that allows multiple Pico-8 web clients (HTML export)
@@ -83,38 +108,4 @@ box.
 
 ## Pong Example
 
-For a more complex example, here is a Pong game as an example of how to use pico-socket.
-We have the following data:
-
-| Variable   | GPIO Address | Pico-Socket Index |
-| ---------- | ------------ | ----------------- |
-| PLAYER_ID  | 0x5f80       | 0                 |
-| ROOM_ID    | 0x5f81       | 1                 |
-| SCORE_1    | 0x5f82       | 2                 |
-| SCORE_2    | 0x5f83       | 3                 |
-| PLAYER_1_Y | 0x5f84       | 4                 |
-| PLAYER_2_Y | 0x5f85       | 5                 |
-| BALL_X_POS | 0x5f86       | 6                 |
-| BALL_X_SPD | 0x5f87       | 7                 |
-| BALL_Y_POS | 0x5f88       | 8                 |
-| BALL_Y_SPD | 0x5f89       | 9                 |
-
-- The `PLAYER_ID` is the selected player in a single game instance (either `1` or `2`).
-- `ROOM_ID` is a unique value that separates players into isolated sessions
-- `SCORE_1` and `SCORE_2` are the values for the two players
-- `PLAYER_1_Y` and `PLAYER_2_Y` are each player's paddle position in the game
-- `BALL_X_POS`, `BALL_X_SPD`, `BALL_Y_POS`, and `BALL_Y_SPD` are values for describing the moving ball
-
-The `ROOM_ID` and `PLAYER_ID` are unique in that they change the behavior of the server. The `ROOM_ID`
-when set will establish a connection to the server so that it can communicate with other clients in the
-same `ROOM_ID`. `PLAYER_ID` determines what other data we will send to the other clients.
-
-Functionally, we want each player to be responsible for their own data (Player 1 should never read
-their position from another player, and similarly, should not be responsible for sending Player 2's position).
-We also want a single player to be responsible for general game state (so there is no conflict on who should
-resolve the final game state).
-
-So, in pico-socket we have indicies associated with each player that determine what data they should send.
-We have `PLAYER_2_Y` associated with the Player 2, and we have `PLAYER_1_Y` associated with Player 1. Additionally
-we have all the game state associated with Player 1 (the score and ball data). This makes Player 1 the source
-of truth in what data should be presented to both clients.
+For a more complex example, check out https://github.com/JRJurman/pico-pong-online
