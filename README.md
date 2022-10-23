@@ -5,7 +5,13 @@ Server and Client library for adding Online Multiplayer to Pico-8
 This Project borrows heavily (but simplifies) the logic in
 Ethan Jurman's Pico Tiny Tanks - https://github.com/ethanjurman/pico-tiny-tanks
 
-## How to use?
+## What is it?
+
+pico-socket is a library that allows multiple Pico-8 web clients (HTML export)
+to talk to each other via websockets. Once the data has reached each client, it
+is loaded in the Pico-8 environment using GPIO addresses.
+
+## How to Install / API
 
 For this, you'll need Node JS, and Pico-8.
 
@@ -29,12 +35,6 @@ the following information when you call the `createPicoSocketServer` function:
   - `roomIdIndex` - the GPIO address index which dictates which other clients you should connect to
   - `playerIdIndex` - the GPIO address index which dictates which player this client is
   - `playerDataIndicies` - a list of indicies per-player, which dictates which GPIO addresses that player is responsible for.
-
-## What is it?
-
-pico-socket is a library that allows multiple Pico-8 web clients (HTML export)
-to talk to each other via websockets. The communication between clients is done
-using Pico-8's GPIO addresses.
 
 ## Simple Example
 
