@@ -1,9 +1,7 @@
 const createPicoSocketClient = ({
-  hostPlayerId,
   roomIdIndex,
   playerIdIndex,
   playerDataIndicies,
-  hostDataIndicies,
 }) => {
   const socket = io();
 
@@ -31,15 +29,8 @@ const createPicoSocketClient = ({
     // make a copy of the GPIO array, we will update this to send out to clients
     const gpioForUpdate = new Array(128);
 
-    // check if we are the host, if so, update host indicies with our data
-    if (playerId === hostPlayerId) {
-      hostDataIndicies.forEach((gpioIndex) => {
-        gpioForUpdate[gpioIndex] = window.pico8_gpio[gpioIndex];
-      });
-    }
-
     // write player specific data for update
-    const playerIndicies = playerDataIndicies[playerId];
+    const playerIndicies = playerDataIndicies[playerId] || [];
     playerIndicies.forEach((gpioIndex) => {
       gpioForUpdate[gpioIndex] = window.pico8_gpio[gpioIndex];
     });

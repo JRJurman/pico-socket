@@ -29,17 +29,8 @@ createPicoSocketServer({
     // indicies that contain player specific data
     playerDataIndicies: [
       [], // there is no zeroth player,
-      [4], // first player position
+      [4, 2, 3, 6, 7, 8, 9], // first player position, and game data
       [5], // second player position
     ],
-
-    // player 1 is the host player
-    // (this is the player responsible for
-    //  sending the hostDataIndicies)
-    hostPlayerId: 1,
-
-    // data we need the host to write
-    // in this case, scores and ball data
-    hostDataIndicies: [2, 3, 6, 7, 8, 9],
   },
 });
