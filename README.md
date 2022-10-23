@@ -1,6 +1,6 @@
 # pico-socket
 
-A library for adding Online Multiplayer to your Pico-8 Games
+Server and Client library for adding Online Multiplayer to Pico-8
 
 This Project borrows heavily (but simplifies) the logic in
 Ethan Jurman's Pico Tiny Tanks - https://github.com/ethanjurman/pico-tiny-tanks
