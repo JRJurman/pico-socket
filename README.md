@@ -23,31 +23,31 @@ player_0_y_addr = 0x5f82 -- index 2
 player_1_y_addr = 0x5f83 -- index 3
 
 function _init()
-	poke(room_id_addr, 0) -- hard code to 0
-	poke(player_id_addr, 0) -- start as player 0
-	poke(player_0_y_addr, 64)
-	poke(player_1_y_addr, 64)
+  poke(room_id_addr, 0) -- hard code to 0
+  poke(player_id_addr, 0) -- start as player 0
+  poke(player_0_y_addr, 64)
+  poke(player_1_y_addr, 64)
 end
 
 function _update()
   player_addr = 0
-	if (peek(player_id_addr) == 1) player_addr = player_0_y_addr
-	if (peek(player_id_addr) == 2) player_addr = player_1_y_addr
+  if (peek(player_id_addr) == 1) player_addr = player_0_y_addr
+  if (peek(player_id_addr) == 2) player_addr = player_1_y_addr
 
-	-- move up and down
+  -- move up and down
   cur_y = peek(player_addr)
   if (btn(⬆️)) poke(player_addr, cur_y-1)
   if (btn(⬇️)) poke(player_addr, cur_y+1)
 
-	-- swap player id
-	if (btnp(❎)) poke(player_id_addr, 0)
-	if (btnp(🅾️)) poke(player_id_addr, 1)
+  -- swap player id
+  if (btnp(❎)) poke(player_id_addr, 0)
+  if (btnp(🅾️)) poke(player_id_addr, 1)
 end
 
 function _draw()
   cls()
-	rect(40, peek(player_0_y_addr), 44, peek(player_0_y_addr)+4, 12)
-	rect(88, peek(player_1_y_addr), 92, peek(player_1_y_addr)+4, 8)
+  rect(40, peek(player_0_y_addr), 44, peek(player_0_y_addr)+4, 12)
+  rect(88, peek(player_1_y_addr), 92, peek(player_1_y_addr)+4, 8)
 end
 ```
 
