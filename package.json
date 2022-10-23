@@ -1,0 +1,23 @@
+{
+  "name": "pico-online-engine",
+  "version": "1.0.0",
+  "description": "Server and Client library for adding Online Multiplayer to your Pico 8 Games",
+  "main": "index.js",
+  "scripts": {
+    "sample": "cd sample && node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JRJurman/pico-online-engine.git"
+  },
+  "author": "Jesse Jurman",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/JRJurman/pico-online-engine/issues"
+  },
+  "homepage": "https://github.com/JRJurman/pico-online-engine#readme",
+  "dependencies": {
+    "express": "^4.18.2",
+    "socket.io": "^4.5.3"
+  }
+}
