@@ -106,6 +106,15 @@ to `localhost:5000` in two separate windows. If you press ❎ in one,
 and 🅾️ in the other, you'll see that each window controls a separate
 box.
 
+## Deployment
+
+Running this javascript file with NodeJS will start a server, that you can connect to. You can run this on your own hardware if you are familiar with setting up servers that other people can connect to (and most likely PORT FORWARDING). If you want, you can do LAN setups where people in the same area or VPN connect
+to each other.
+
+If you have a Github account and are familiar with creating Repositories, my recommendation is using a cloud
+service like Heroku, which can fairly trivially deploy and host your project. See the Pong Example below
+for a minimal repository setup that does just that!
+
 ## Pong Example
 
 For a more complex example, check out https://github.com/JRJurman/pico-pong-online
