@@ -1,32 +1,89 @@
 # pico-socket
 
-Server and Client code for adding Online Multiplayer to your Pico-8 Games
+A library for adding Online Multiplayer to your Pico-8 Games
 
 This Project borrows heavily (but simplifies) the logic in
 Ethan Jurman's Pico Tiny Tanks - https://github.com/ethanjurman/pico-tiny-tanks
 
 ## What is it?
 
-Pico Socket is Server and Client code so that you can have interactive online
-multiplayer in your Pico-8 games. This is accomplished by using Pico-8's GPIO
-as a way to write and read data from other players.
+pico-socket is a library that allows multiple Pico-8 web clients (HTML export)
+to talk to each other via websockets. The communication between clients is done
+using Pico-8's GPIO addresses.
 
-This Library works off of the default HTML export for Pico-8 games. While it
-requires very little Javascript to configure, it does depend on a server (or
-local computer) to run the game in a way that other people can connect to it.
+## Simple Example
 
-## How to Use
+In your Pico-8 game, use GPIO addresses as a substitute for game state, using
+`PEEK` and `POKE` to access data for the different players.
 
-NOTE: This project makes a lot of assumptions about how your game will work, what
-kinds of data you'll want to manage, and how you want to manage it. While we believe
-this interface is generic in a way that it should meet most games needs, feel free
-to copy and change this code for whatever purposes your game may have! If you have a
-use-case that you believe is generic and benefitical, feel free to make a suggestion
-in the Issues tab here, or if possible, make a PR with your suggested improvement!
+```lua
+room_id_addr = 0x5f80 -- index 0
+player_id_addr = 0x5f81 -- index 1
+player_0_y_addr = 0x5f82 -- index 2
+player_1_y_addr = 0x5f83 -- index 3
 
-### Pong Example
+function _init()
+	poke(room_id_addr, 0) -- hard code to 0
+	poke(player_id_addr, 0) -- start as player 0
+	poke(player_0_y_addr, 64)
+	poke(player_1_y_addr, 64)
+end
 
-For this, we'll use a simple Pong game as an example of how to use pico-socket.
+function _update()
+  player_addr = 0
+	if (peek(player_id_addr) == 1) player_addr = player_0_y_addr
+	if (peek(player_id_addr) == 2) player_addr = player_1_y_addr
+
+	-- move up and down
+  cur_y = peek(player_addr)
+  if (btn(⬆️)) poke(player_addr, cur_y-1)
+  if (btn(⬇️)) poke(player_addr, cur_y+1)
+
+	-- swap player id
+	if (btnp(❎)) poke(player_id_addr, 0)
+	if (btnp(🅾️)) poke(player_id_addr, 1)
+end
+
+function _draw()
+  cls()
+	rect(40, peek(player_0_y_addr), 44, peek(player_0_y_addr)+4, 12)
+	rect(88, peek(player_1_y_addr), 92, peek(player_1_y_addr)+4, 8)
+end
+```
+
+Create a `server.js` file next to your `.html` and `.js` export,
+configured in the following way:
+
+```js
+const { createPicoSocketServer } = require("pico-socket");
+
+createPicoSocketServer({
+  assetFilesPath: ".",
+  htmlGameFilePath: "./sample.html",
+
+  clientConfig: {
+    roomIdIndex: 0, // ROOM_ID
+
+    // index to determine the player id
+    playerIdIndex: 1, // PLAYER_ID
+
+    // indicies that contain player specific data
+    playerDataIndicies: [
+      [2], // PLAYER_0_Y
+      [3], // PLAYER_1_Y
+    ],
+  },
+});
+```
+
+If you run the `server.js` using `node server.js`, you can navigate
+to `localhost:5000` in two separate windows. If you press ❎ in one,
+and 🅾️ in the other, you'll see that each window controls a separate
+box.
+
+## Pong Example
+
+For a more complex example, here is a Pong game as an example of how to use pico-socket.
 We have the following data:
 
 | Variable   | GPIO Address | Pico-Socket Index |
@@ -61,9 +118,3 @@ So, in pico-socket we have indicies associated with each player that determine w
 We have `PLAYER_2_Y` associated with the Player 2, and we have `PLAYER_1_Y` associated with Player 1. Additionally
 we have all the game state associated with Player 1 (the score and ball data). This makes Player 1 the source
 of truth in what data should be presented to both clients.
-
-### Game Logic
-
-```
-npm install pico-socket
-```

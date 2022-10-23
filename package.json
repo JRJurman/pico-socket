@@ -4,6 +4,7 @@
   "description": "Server and Client library for adding Online Multiplayer to your Pico-8 Games",
   "main": "index.js",
   "scripts": {
+    "pong": "cd pong && node server.js",
     "sample": "cd sample && node server.js"
   },
   "repository": {

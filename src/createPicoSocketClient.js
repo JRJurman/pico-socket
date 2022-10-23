@@ -5,31 +5,29 @@ const createPicoSocketClient = ({
 }) => {
   const socket = io();
 
-  let playerId = null;
-
   // every 250ms check the room id from GPIO
   // (we won't start reading / writing to other players
   //  until we have a room id)
   const roomCodeInterval = setInterval(() => {
-    if (window.pico8_gpio[roomIdIndex]) {
+    const roomId = window.pico8_gpio[roomIdIndex];
+    if (roomId != undefined) {
+      console.log("client joined room: ", roomId);
       clearInterval(roomCodeInterval);
-      socket.emit("room_join", {
-        roomId: window.pico8_gpio[roomIdIndex],
-      });
+      socket.emit("room_join", { roomId });
       window.requestAnimationFrame(onFrameUpdate);
     }
   }, 250);
 
   // on every frame send updates to the server about our data from gpio
   function onFrameUpdate() {
-    // check to see if we have a playerId
-    if (window.pico8_gpio[playerIdIndex] !== undefined) {
-      playerId = window.pico8_gpio[playerIdIndex];
-    }
+    // get playerId from the specified index
+    const playerId = window.pico8_gpio[playerIdIndex];
+
     // make a copy of the GPIO array, we will update this to send out to clients
     const gpioForUpdate = new Array(128);
 
-    // write player specific data for update
+    // get the indicies that this player is responsible
+    // and update the `gpioForUpdate` to include that data
     const playerIndicies = playerDataIndicies[playerId] || [];
     playerIndicies.forEach((gpioIndex) => {
       gpioForUpdate[gpioIndex] = window.pico8_gpio[gpioIndex];
@@ -47,13 +45,9 @@ const createPicoSocketClient = ({
 
   // when we get other data from the server, set our gpio so pico8 can read it
   socket.on("update_from_server", (updatedData) => {
-    // if we haven't picked a player (we are not in a game), then return immediately
-    if (playerId === null) {
-      return;
-    }
     // for all of the data we have
     updatedData.forEach((updatedValue, gpioIndex) => {
-      if (updatedValue != null) {
+      if (updatedValue != undefined) {
         window.pico8_gpio[gpioIndex] = updatedValue;
       }
     });

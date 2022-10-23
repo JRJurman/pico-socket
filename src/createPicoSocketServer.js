@@ -61,10 +61,20 @@ const createPicoSocketServer = ({
     socket.on("room_join", (evtData) => {
       socket.join(evtData.roomId);
       roomId = evtData.roomId;
+
+      // if DEBUG=true, log when clients join
+      if (process.env.DEBUG) {
+        console.log("client joined room: ", roomId);
+      }
     });
     // when the server recives an update from the client, send it to every client with the same room id
     socket.on("update", (updatedData) => {
       socket.to(roomId).volatile.emit("update_from_server", updatedData);
+
+      // if DEBUG=true, log the data we get
+      if (process.env.DEBUG) {
+        console.log(`${roomId}: `, updatedData);
+      }
     });
   });
 
