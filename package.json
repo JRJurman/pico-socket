@@ -1,8 +1,11 @@
 {
   "name": "pico-online-engine",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Server and Client library for adding Online Multiplayer to Pico-8",
   "main": "index.js",
+  "files": [
+    "src"
+  ],
   "scripts": {
     "pong": "cd pong && node server.js",
     "sample": "cd sample && node server.js"
