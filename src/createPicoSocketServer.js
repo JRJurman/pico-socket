@@ -6,6 +6,22 @@ const fs = require("fs");
 const createPicoSocketClient = require("./createPicoSocketClient");
 
 /**
+ * helper function that turns null to empty slots
+ * helper function that turns null to empty slots
+ * used for DEBUG console logging
+ * (enable by running your server with DEBUG=true)
+ */
+const emptyArrayWithData = (data) => {
+  const emptyArray = new Array(data.length);
+  data.forEach((element, index) => {
+    if (element !== null) {
+      emptyArray[index] = element;
+    }
+  });
+  return emptyArray;
+};
+
+/**
  * createPicoSocketServer - creates the server and sets up basic room
  * joining and data updating logic
  *
@@ -30,7 +46,10 @@ const createPicoSocketServer = ({
       <script src="/socket.io/socket.io.js"></script>
       <script defer>
         const createPicoSocketClient = ${createPicoSocketClient.toString()}
-        createPicoSocketClient(${JSON.stringify(clientConfig)})
+        createPicoSocketClient(${JSON.stringify({
+          ...clientConfig,
+          debug: process.env.DEBUG,
+        })})
       </script>
     </head>
   `;
@@ -73,7 +92,7 @@ const createPicoSocketServer = ({
 
       // if DEBUG=true, log the data we get
       if (process.env.DEBUG) {
-        console.log(`${roomId}: `, updatedData);
+        console.log(`${roomId}: `, emptyArrayWithData(updatedData));
       }
     });
   });

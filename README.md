@@ -36,6 +36,12 @@ the following information when you call the `createPicoSocketServer` function:
   - `playerIdIndex` - the GPIO address index which dictates which player this client is
   - `playerDataIndicies` - a list of indicies per-player, which dictates which GPIO addresses that player is responsible for.
 
+Finally, run `node server.js` to kick off the server locally and play your game!
+To test locally, it's possible to open two separate windows pointed to `localhost:5000` and have each client be a different player.
+See the **Deployment** section below for more details.
+
+If you want debugging information, you can run `DEBUG=true node server.js` to see the messages on the server and client logs.
+
 ## Simple Example
 
 In your Pico-8 game, use GPIO addresses as a substitute for game state, using

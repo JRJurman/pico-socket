@@ -1,9 +1,37 @@
+/**
+ * createPicoSocketClient - function to interact with the
+ * GPIO addresses of Pico-8 and send them to the server via socket-io
+ *
+ * Note, this logic does not need to be called directly - it is automatically
+ * embedded by createPicoSocketServer - however you can import and call this
+ * code in your own implementation!
+ */
 const createPicoSocketClient = ({
   roomIdIndex,
   playerIdIndex,
   playerDataIndicies,
+  debug,
 }) => {
   const socket = io();
+
+  /**
+   * helper function that turns null to empty slots
+   * used for DEBUG console logging
+   * (enable by running your server with DEBUG=true)
+   */
+  const emptyArrayWithData = (data) => {
+    const emptyArray = new Array(data.length);
+    data.forEach((element, index) => {
+      if (element !== null) {
+        emptyArray[index] = element;
+      }
+    });
+    return emptyArray;
+  };
+
+  if (debug) {
+    console.log("pico-socket: waiting to join room...");
+  }
 
   // every 250ms check the room id from GPIO
   // (we won't start reading / writing to other players
@@ -11,7 +39,9 @@ const createPicoSocketClient = ({
   const roomCodeInterval = setInterval(() => {
     const roomId = window.pico8_gpio[roomIdIndex];
     if (roomId != undefined) {
-      console.log("client joined room: ", roomId);
+      if (debug) {
+        console.log("pico-socket: client joined room: ", roomId);
+      }
       clearInterval(roomCodeInterval);
       socket.emit("room_join", { roomId });
       window.requestAnimationFrame(onFrameUpdate);
@@ -33,6 +63,10 @@ const createPicoSocketClient = ({
       gpioForUpdate[gpioIndex] = window.pico8_gpio[gpioIndex];
     });
 
+    if (debug) {
+      console.log("pico-socket: sending: ", gpioForUpdate);
+    }
+
     // send data to server (volatile means unsent data can be dropped)
     socket.volatile.emit("update", gpioForUpdate);
 
@@ -45,7 +79,11 @@ const createPicoSocketClient = ({
 
   // when we get other data from the server, set our gpio so pico8 can read it
   socket.on("update_from_server", (updatedData) => {
-    // for all of the data we have
+    if (debug) {
+      console.log("pico-socket: recieve: ", emptyArrayWithData(updatedData));
+    }
+
+    // for all of the data we have, write to GPIO addresses
     updatedData.forEach((updatedValue, gpioIndex) => {
       if (updatedValue != undefined) {
         window.pico8_gpio[gpioIndex] = updatedValue;
