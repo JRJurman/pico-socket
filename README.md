@@ -11,6 +11,12 @@ pico-socket is a library that allows multiple Pico-8 web clients (HTML export)
 to talk to each other via websockets. Once the data has reached each client, it
 is loaded in the Pico-8 environment using GPIO addresses.
 
+While using pico-socket requires some configuration using Javascript, you are
+do not need to write any javascript client or server code to get your game running!
+
+![image](https://user-images.githubusercontent.com/326557/197943346-f18c8794-9345-4f7c-896f-8cf4156a8e61.png)
+
+
 ## How to Install / API
 
 For this, you'll need Node JS, and Pico-8.
