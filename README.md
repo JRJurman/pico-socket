@@ -14,8 +14,7 @@ is loaded in the Pico-8 environment using GPIO addresses.
 While using pico-socket requires some configuration using Javascript, you are
 do not need to write any javascript client or server code to get your game running!
 
-![image](https://user-images.githubusercontent.com/326557/197946292-d650eb31-aaab-4c7b-bd58-1892cac37e02.png)
-
+![Architecture Diagram](https://user-images.githubusercontent.com/326557/197959119-7de47927-6b2f-470d-98ab-ce4c258a68f1.png)
 
 ## How to Install / API
 
