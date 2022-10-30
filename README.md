@@ -95,6 +95,10 @@ Included in this repo is a simple project that you can look at as a reference.
 
 For a more complex example, check out https://github.com/JRJurman/pico-pong-online
 
+## Architecture
+
+![Architecture Diagram](https://user-images.githubusercontent.com/326557/197959119-7de47927-6b2f-470d-98ab-ce4c258a68f1.png)
+
 ## Credits
 
 This Project borrows heavily (but simplifies) the logic in
