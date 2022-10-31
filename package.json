@@ -10,9 +10,9 @@
   ],
   "scripts": {
     "sample": "cd sample && node ../bin/pico-socket.js",
-    "test": "jest --watch",
+    "test": "jest --watch ./bin",
     "test:ci": "jest",
-    "int": "jest --env=jsdom ./integration-tests"
+    "int": "jest --watch --env=jsdom ./integration-tests"
   },
   "repository": {
     "type": "git",
