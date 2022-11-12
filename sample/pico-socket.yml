@@ -1,0 +1,11 @@
+# index where we can find the room id
+roomIdIndex: 0
+
+# index where we can find the player id
+playerIdIndex: 1
+
+# indicies with player specific data
+playerDataIndicies:
+  - [] # player 0 (not joined)
+  - [2, 3, 4] # player 1 joined, X, Y position
+  - [5, 6, 7] # player 2 joined, X, Y position

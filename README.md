@@ -1,131 +1,108 @@
 # pico-socket
 
-Server and Client library for adding Online Multiplayer to Pico-8
-
-This Project borrows heavily (but simplifies) the logic in
-Ethan Jurman's Pico Tiny Tanks - https://github.com/ethanjurman/pico-tiny-tanks
+A simple library for adding Online Multiplayer in pico-8
 
 ## What is it?
 
-pico-socket is a library that allows multiple Pico-8 web clients (HTML export)
-to talk to each other via websockets. Once the data has reached each client, it
-is loaded in the Pico-8 environment using GPIO addresses.
+pico-socket is a library that allows multiple pico-8 web clients (HTML export)
+to talk to each other via websockets. pico-socket only requires a simple config,
+no additional coding outside of your game, and is flexible for most game types.
 
-While using pico-socket requires some configuration using Javascript, you are
-do not need to write any javascript client or server code to get your game running!
+## How to Use
 
-![Architecture Diagram](https://user-images.githubusercontent.com/326557/197959119-7de47927-6b2f-470d-98ab-ce4c258a68f1.png)
+### Requirements
 
-## How to Install / API
+- NodeJS - https://nodejs.org/en/
+- pico-8 - https://www.lexaloffle.com/pico-8.php
 
-For this, you'll need Node JS, and Pico-8.
+### pico-8 interface
 
-To start, make a new folder, and run the following in that new folder:
+In order for pico-socket to work, you need to read and write values to
+[GPIO pins](https://pico-8.fandom.com/wiki/GPIO) in your pico-8 game.
 
-```
-npm init --yes
-npm i pico-socket
-```
+One of these pins needs to be reserved for a room id, which determines which clients
+can talk to who. Only players in the same room will share state.
 
-Export your game for the web (e.g. `export game.html`) and put your new game
-files in the folder you just made (specifically your `.html` and `.js` export).
+Another pin needs to be reserved for the player id. This will be used for determing which
+pins this player is responsible for updating.
 
-Create a `server.js` and call the `createPicoSocketServer`
-(see the example in `sample/server.js` in this project). You'll need to pass in
-the following information when you call the `createPicoSocketServer` function:
+After that, you are welcome to use the pins however you like. You can store
+general game state, player information, whatever you want!
 
-- `assetFilesPath` - where you game assets live (you can use `.` if they are in the same folder)
-- `htmlGameFilePath` - the name of your html export
-- `clientConfig` - an object with the following values:
-  - `roomIdIndex` - the GPIO address index which dictates which other clients you should connect to
-  - `playerIdIndex` - the GPIO address index which dictates which player this client is
-  - `playerDataIndicies` - a list of indicies per-player, which dictates which GPIO addresses that player is responsible for.
+_Note: Values must be 0-255, they can not be negative, and if they would go beyond those values, they will loop around._
 
-Finally, run `node server.js` to kick off the server locally and play your game!
-To test locally, it's possible to open two separate windows pointed to `localhost:5000` and have each client be a different player.
-See the **Deployment** section below for more details.
+For example, you may reserve pins in the following way:
 
-If you want debugging information, you can run `DEBUG=true node server.js` to see the messages on the server and client logs.
+| 0x5f80  | 0x5f81    | 0x5f82     | 0x5f83     | 0x5f84     | 0x5f85     |
+| ------- | --------- | ---------- | ---------- | ---------- | ---------- |
+| room id | player id | player 1 x | player 1 y | player 2 x | player 2 y |
 
-## Simple Example
+### pico-socket interface
 
-In your Pico-8 game, use GPIO addresses as a substitute for game state, using
-`PEEK` and `POKE` to access data for the different players.
+Export your game for the web (e.g. `export game.html`) and put the exported
+files in a folder by themselves (the generated html and js file).
 
-```lua
-room_id_addr = 0x5f80 -- index 0
-player_id_addr = 0x5f81 -- index 1
-player_0_y_addr = 0x5f82 -- index 2
-player_1_y_addr = 0x5f83 -- index 3
+In that folder, create a `pico-socket.yml` that has the following data:
 
-function _init()
-  poke(room_id_addr, 0) -- hard code to 0
-  poke(player_id_addr, 0) -- start as player 0
-  poke(player_0_y_addr, 64)
-  poke(player_1_y_addr, 64)
-end
+- `roomIdIndex` - the GPIO pin index which dictates which other players you can connect to
+- `playerIdIndex` - the GPIO pin index which dictates which player this is
+- `playerDataIndicies` - a list of indicies per-player, which dictates which GPIO pins that player is responsible for
 
-function _update()
-  player_addr = 0
-  if (peek(player_id_addr) == 1) player_addr = player_0_y_addr
-  if (peek(player_id_addr) == 2) player_addr = player_1_y_addr
+Using the above example again, you might configure pico-socket in the following way:
 
-  -- move up and down
-  cur_y = peek(player_addr)
-  if (btn(⬆️)) poke(player_addr, cur_y-1)
-  if (btn(⬇️)) poke(player_addr, cur_y+1)
-
-  -- swap player id
-  if (btnp(❎)) poke(player_id_addr, 0)
-  if (btnp(🅾️)) poke(player_id_addr, 1)
-end
-
-function _draw()
-  cls()
-  rect(40, peek(player_0_y_addr), 44, peek(player_0_y_addr)+4, 12)
-  rect(88, peek(player_1_y_addr), 92, peek(player_1_y_addr)+4, 8)
-end
+```yaml
+roomIdIndex: 0 # 0x5f80
+playerIdIndex: 1 # 0x5f81
+playerDataIndicies:
+  - [] # no data for player 0
+  - [2, 3] # 0x5f82 and 0x5f83 - player 1 X and Y position
+  - [4, 5] # 0x5f84 and 0x5f85 - player 2 X and Y position
 ```
 
-Create a `server.js` file next to your `.html` and `.js` export,
-configured in the following way:
+This would tell pico-socket that if the playerId was `1`, we should send whatever data they have in `0x5f82` and `0x5f83`.
+Player 2 would take in those values, and it's GPIO pins would be updated whenever player 1 changed them.
 
-```js
-const { createPicoSocketServer } = require("pico-socket");
+### Running the game
 
-createPicoSocketServer({
-  assetFilesPath: ".",
-  htmlGameFilePath: "./sample.html",
+In our folder, we should have an html file, a js file, and a `pico-socket.yml`.
+Now we can run the following command:
 
-  clientConfig: {
-    roomIdIndex: 0, // ROOM_ID
-
-    // index to determine the player id
-    playerIdIndex: 1, // PLAYER_ID
-
-    // indicies that contain player specific data
-    playerDataIndicies: [
-      [2], // PLAYER_0_Y
-      [3], // PLAYER_1_Y
-    ],
-  },
-});
+```
+npx pico-socket
 ```
 
-If you run the `server.js` using `node server.js`, you can navigate
-to `localhost:5000` in two separate windows. If you press ❎ in one,
-and 🅾️ in the other, you'll see that each window controls a separate
-box.
+This will kick off a server on `localhost:5000`. Navigate to that address, and you should see your game!
+You can open this address in multiple windows, and they should all be able to interact with each other.
 
-## Deployment
+### Deployment
 
-Running this javascript file with NodeJS will start a server, that you can connect to. You can run this on your own hardware if you are familiar with setting up servers that other people can connect to (and most likely PORT FORWARDING). If you want, you can do LAN setups where people in the same area or VPN connect
-to each other.
+If you want to deploy a project to a cloud service (like heroku),
+you can create a package.json for your project with the following command:
 
-If you have a Github account and are familiar with creating Repositories, my recommendation is using a cloud
-service like Heroku, which can fairly trivially deploy and host your project. See the Pong Example below
-for a minimal repository setup that does just that!
+```
+npx pico-socket --package
+```
+
+This will create a package.json with the appropriate scripts.
+From there, you can push your project to github and point to
+heroku, or whatever cloud service you are familiar with.
+
+## Sample
+
+Included in this repo is a simple project that you can look at as a reference.
 
 ## Pong Example
 
 For a more complex example, check out https://github.com/JRJurman/pico-pong-online
+
+## Architecture
+
+![Architecture Diagram](https://user-images.githubusercontent.com/326557/197959119-7de47927-6b2f-470d-98ab-ce4c258a68f1.png)
+
+## Credits
+
+This Project borrows heavily (but simplifies) the logic in
+Ethan Jurman's Pico Tiny Tanks - https://github.com/ethanjurman/pico-tiny-tanks
+
+Special shout-outs go to Tina Howard and Randy Goodman who also helped
+contribute to the initial examples and interface for pico-socket
